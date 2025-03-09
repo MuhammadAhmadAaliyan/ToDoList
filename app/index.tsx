@@ -1,7 +1,7 @@
 import { Text, View, StyleSheet, useColorScheme, Image, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Circle } from "react-native-svg";
-import * as SplahScreen from 'expo-splash-screen';
+import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from "expo-font";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -15,7 +15,7 @@ const index = () => {
     'Poppins-SemiBold': require('@/assets/fonts/Poppins-SemiBold.ttf')
   });
   if (fontLoaded) {
-    SplahScreen.hideAsync();
+    SplashScreen.hideAsync();
   }
   if (!fontLoaded) {
     return null;

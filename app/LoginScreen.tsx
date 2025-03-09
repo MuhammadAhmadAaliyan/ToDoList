@@ -1,21 +1,17 @@
 import * as React from 'react';
-import { View, Text, useColorScheme, StyleSheet, TextInput, ScrollView, KeyboardAvoidingView, Platform, Pressable, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, useColorScheme, StyleSheet, TextInput, ScrollView, KeyboardAvoidingView, Platform, Pressable, TouchableOpacity, Image } from 'react-native';
 import Svg, { Circle } from "react-native-svg";
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Onboarding = () => {
 
     const colorScheme = useColorScheme();
-    const [fullName, setFullName] = React.useState<string>();
-    const [email, setEmail] = React.useState<string>();
+    const [email, setEmail] = React.useState<any>();
     const [password, setPassword] = React.useState<string>();
-    const [confirmPassword, setConfirmPassword] = React.useState<string>();
     const [showPassword, setShowPassword] = React.useState(false)
-    const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
     const [fontLoaded] = useFonts({
         'Poppins-Bold': require('@/assets/fonts/Poppins-Bold.ttf'),
         'Poppins-Regular': require('@/assets/fonts/Poppins-Regular.ttf'),
@@ -29,48 +25,20 @@ const Onboarding = () => {
     }
 
     //Check valid email function
+
     let isValidEmail = (email: string) => {
         const emailRegrex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         return emailRegrex.test(email);
     }
 
     //Check valid password function
-    let isPasswordValid = (password: string) => {
-        const passowordRegrex = /^(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-            return passowordRegrex.test(password);
-    }
 
-    //Function to handle Register Button
-    let handleButton = async () => {
-        try{
-            if(!fullName || !email || !password || !confirmPassword){
-                Alert.alert("Alert", "Please complete the following input fields!!");
-            }else{
-                if(isValidEmail(email)){
-                    if(isPasswordValid(password)){
-                        if(password.includes(confirmPassword) && password.length == confirmPassword.length){
-                            let data: any = [];
-                            data.push(['fullName', fullName]);
-                            data.push(['email', email]);
-                            data.push(['password', password]);
-                            data.push(['confirmPassword', confirmPassword]);
-                            data.push(['signupComplete', "true"]);
-                            await AsyncStorage.multiSet(data);
-                            Alert.alert("Success:", "Signup Successful.");
-                            router.navigate('/LoginScreen');
-                        }else{
-                            Alert.alert("Error:", "Password and Confirm Password did not match!!");
-                        }
-                    }else{
-                        Alert.alert("Error:", "Password should meet the given requirements.");
-                    }
-                }else{
-                    Alert.alert("Error:", "Please enter a valid email!!");
-                }
-            }
-        }catch(e){
-            console.log("Error: ", e);
+    let isPasswordValid = (password: string) => {
+        const passowordRegrex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if(password.length == 8){
+            return passowordRegrex.test(password);
         }
+
     }
 
     return (
@@ -85,16 +53,11 @@ const Onboarding = () => {
                 keyboardDismissMode='none'
                 >
                     <View style={styles.onboard}>
-                        <Text style={[styles.welcomeText, colorScheme === 'dark' ? { color: '#ffffff' } : { color: '#000000' }]}>Welcome to Onboard!</Text>
-                        <Text style={[styles.welcomeSubText, colorScheme === 'dark' ? { color: '#ffffff' } : { color: '#000000' }]}>Let’s help to meet up your tasks.</Text>
-                        <TextInput
-                            value={fullName}
-                            placeholder='Enter your full name'
-                            onChangeText={(text) => setFullName(text)}
-                            keyboardType='default'
-                            style={[styles.input, colorScheme === 'dark' ? { color: '#ffffff' } : { color: '#000000' }]}
-                            cursorColor={'#50C2C9'}
-                            placeholderTextColor={colorScheme === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.4)'}
+                        <Text style={[styles.welcomeText, colorScheme === 'dark' ? { color: '#ffffff' } : { color: '#000000' }]}>Welcome Back</Text>
+                        <Image
+                        source={require('@/assets/images/LoginScreenImage.png')}
+                        style={styles.image}
+                        resizeMode='contain'
                         />
                         <TextInput
                             value={email}
@@ -111,7 +74,7 @@ const Onboarding = () => {
                                 placeholder='Enter password'
                                 onChangeText={(text) => setPassword(text)}
                                 keyboardType='default'
-                                style={[styles.passwordInput, colorScheme === 'dark' ? { color: '#ffffff' } : { color: '#000000' }]}
+                                style={[{ flex: 1, fontSize: 13, fontFamily: 'Poppins-Regular', height: 45, padding: 10 }, colorScheme === 'dark' ? { color: '#ffffff' } : { color: '#000000' }]}
                                 cursorColor={'#50C2C9'}
                                 placeholderTextColor={colorScheme === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.4)'}
                                 secureTextEntry={!showPassword}
@@ -128,39 +91,18 @@ const Onboarding = () => {
                             />
                             </TouchableOpacity>
                         </View>
-                        <View style={styles.passwordContainer}>
-                            <TextInput
-                                value={confirmPassword}
-                                placeholder='Confirm password'
-                                onChangeText={(text) => setConfirmPassword(text)}
-                                keyboardType='default'
-                                style={[styles.passwordInput, colorScheme === 'dark' ? { color: '#ffffff' } : { color: '#000000' }]}
-                                cursorColor={'#50C2C9'}
-                                placeholderTextColor={colorScheme === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.4)'}
-                                secureTextEntry={!showConfirmPassword}
-                            />
-                            <TouchableOpacity
-                            onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                            activeOpacity={1}
-                            >
-                            <Ionicons
-                                name={showConfirmPassword ? 'eye-off' : 'eye'}
-                                size={15}
-                                color={'#50C2C9'}
-                                style={{padding: 10}}
-                            />
-                            </TouchableOpacity>
-                        </View>
-                        <Text style={[styles.passwordRequirements, colorScheme === 'dark' ? {color: '#ffffff'}: {color: '#000000'}]}>Password should be minimum 8 characters, at least 1 alphabet, 1 number and 1 special character.</Text>
+                        <Pressable style={styles.forgetButton}>
+                            <Text style={styles.forrgetButtonText}>Forget Password?</Text>
+                        </Pressable>
                     </View>
                     <View>
-                        <Pressable style={styles.button} onPress={() => handleButton()}>
-                            <Text style={styles.buttonText}>Register</Text>
+                        <Pressable style={styles.button}>
+                            <Text style={styles.buttonText}>Login</Text>
                         </Pressable>
                         <View style={styles.ButtonContainer}>
-                            <Text style={[ styles.signInText, colorScheme === 'dark' ? { color: '#ffffff' } : { color: '#000000' }]}>Already have an account?</Text>
-                            <Pressable onPress={() => router.navigate('/LoginScreen')}>
-                                <Text style={styles.signInButtonText}>Sign in</Text>
+                            <Text style={[styles.signInText, colorScheme === 'dark' ? { color: '#ffffff' } : { color: '#000000' }]}>Don't have an account?</Text>
+                            <Pressable onPress={() => router.navigate('/Onboarding')}>
+                                <Text style={styles.signInButtonText}>Sign up</Text>
                             </Pressable>
                         </View>
                     </View>
@@ -191,12 +133,11 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         paddingBottom: '8%'
     },
-    welcomeSubText: {
-        fontSize: 13,
-        fontFamily: 'Poppins-Regular',
-        textAlign: 'center',
-        paddingBottom: '10%'
-    },
+    image: {
+        width: 300,
+        height: 200,
+        alignSelf: 'center'
+      },
     input: {
         borderWidth: 1,
         borderColor: '#50C2C9',
@@ -219,13 +160,6 @@ const styles = StyleSheet.create({
         marginHorizontal: '6%',
         alignItems: 'center'
     },
-    passwordInput: { 
-        flex: 1, 
-        fontSize: 13, 
-        fontFamily: 'Poppins-Regular', 
-        height: 45, 
-        padding: 10 
-    },
     button: {
         borderWidth: 1,
         borderColor: '#50C2C9',
@@ -235,7 +169,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginHorizontal: '6%',
         borderRadius: 12,
-        marginTop: '20%'
+        marginTop: '5%'
     },
     buttonText: {
         fontSize: 18,
@@ -257,10 +191,14 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins-Regular',
         color: '#50C2C9'
     },
-    passwordRequirements: {
-        fontSize: 10,
+    forgetButton: {
+        padding: '10%',
+        paddingTop: '8%',
+        alignItems: 'center'
+    },
+    forrgetButtonText: {
+        fontSize: 13,
         fontFamily: 'Poppins-Regular',
-        marginHorizontal: '6%',
-        marginTop: '1.5%',
+        color: '#50C2C9'
     }
 })
