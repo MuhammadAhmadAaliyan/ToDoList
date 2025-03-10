@@ -14,8 +14,12 @@ export default function RootLayout() {
       await SplashScreen.preventAutoHideAsync();
     }
     try{
-      const isSignUpComplete = await AsyncStorage.getItem('signupComplete');
-      if(isSignUpComplete === "true"){
+      const isSignupComplete = await AsyncStorage.getItem('signupComplete');
+      const isLoginComplete = await AsyncStorage.getItem('loginComplete');
+
+      if(isSignupComplete === "true" && isLoginComplete === "true"){
+        router.replace('/HomeScreen');
+      }else if(isSignupComplete === "true"){
         router.replace('/LoginScreen');
       }else{
         router.replace('/');
@@ -38,6 +42,7 @@ export default function RootLayout() {
       <Stack.Screen name='index'/>
       <Stack.Screen name='Onboarding'/>
       <Stack.Screen name='LoginScreen'/>
+      <Stack.Screen name='HomeScreen'/>
     </Stack>
     <StatusBar barStyle={colorScheme === 'dark' ? 'light-content': 'dark-content'} backgroundColor={'transparent'} translucent/>
     </>

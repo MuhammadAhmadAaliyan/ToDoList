@@ -5,13 +5,17 @@ import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { Snackbar } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Onboarding = () => {
 
     const colorScheme = useColorScheme();
     const [email, setEmail] = React.useState<any>();
-    const [password, setPassword] = React.useState<string>();
-    const [showPassword, setShowPassword] = React.useState(false)
+    const [password, setPassword] = React.useState<any>();
+    const [showPassword, setShowPassword] = React.useState(false);
+    const [isVisible, setVisible] = React.useState(false);
+    const [message, setMessage] = React.useState("");
     const [fontLoaded] = useFonts({
         'Poppins-Bold': require('@/assets/fonts/Poppins-Bold.ttf'),
         'Poppins-Regular': require('@/assets/fonts/Poppins-Regular.ttf'),
@@ -25,20 +29,41 @@ const Onboarding = () => {
     }
 
     //Check valid email function
-
     let isValidEmail = (email: string) => {
         const emailRegrex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         return emailRegrex.test(email);
     }
 
     //Check valid password function
-
     let isPasswordValid = (password: string) => {
         const passowordRegrex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         if(password.length == 8){
             return passowordRegrex.test(password);
         }
 
+    }
+
+    //Handle Login Button
+    let handleButton = async () => {
+        try{
+            const getEmail = await AsyncStorage.getItem('email');
+            const getPassword = await AsyncStorage.getItem('password');
+            if(email.includes(getEmail) && password.includes(getPassword)){
+                await AsyncStorage.setItem('loginComplete', "true");
+                setVisible(true);
+                setMessage("Login Successful.");
+                setTimeout(() => {
+                    setVisible(false);
+                    router.navigate('/HomeScreen');
+                }, 500);
+            }else{
+            setVisible(true);
+            setMessage("Incorrect email or password.");
+            setTimeout(() => setVisible(false), 500);
+            }
+        }catch(e){
+            console.log("Error: ", e);
+        }
     }
 
     return (
@@ -63,7 +88,7 @@ const Onboarding = () => {
                             value={email}
                             placeholder='Enter your email'
                             onChangeText={(text) => setEmail(text)}
-                            keyboardType='default'
+                            keyboardType='email-address'
                             style={[styles.input, colorScheme === 'dark' ? { color: '#ffffff' } : { color: '#000000' }]}
                             cursorColor={'#50C2C9'}
                             placeholderTextColor={colorScheme === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.4)'}
@@ -96,7 +121,10 @@ const Onboarding = () => {
                         </Pressable>
                     </View>
                     <View>
-                        <Pressable style={styles.button}>
+                        <Pressable
+                        style={styles.button}
+                        onPress={() => handleButton()}
+                        >
                             <Text style={styles.buttonText}>Login</Text>
                         </Pressable>
                         <View style={styles.ButtonContainer}>
@@ -107,6 +135,16 @@ const Onboarding = () => {
                         </View>
                     </View>
                 </ScrollView>
+                <Snackbar
+                visible={isVisible}
+                onDismiss={() => setVisible(false)}
+                duration={2000}
+                style={styles.snackBar}>
+                <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                    <Ionicons name={message == "Login Successful." ? 'checkmark-circle' : 'close-circle'} color={message == "Login Successful." ? '#4CAF50': 'red'} size={20} />
+                    <Text style={styles.signupText}>{message}</Text>
+                </View>
+            </Snackbar>
             </KeyboardAvoidingView>
     );
 }
@@ -200,5 +238,18 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontFamily: 'Poppins-Regular',
         color: '#50C2C9'
+    },
+    snackBar: { 
+        backgroundColor: 'rgba(60, 60, 60, 0.8)', 
+        marginHorizontal: '25%', 
+        height: 60, 
+        alignItems: 'center', 
+        bottom: '20%'
+    },
+    signupText: {
+        fontSize: 15, 
+        fontFamily: 'Poppins-Regular', 
+        color: '#ffffff', 
+        left: 5
     }
 })
